@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pak Game Zone - Snake</title>
+<style>
+body{margin:0;background:#101820;color:white;font-family:Arial;text-align:center}
+h1{color:#63f58b}
+canvas{width:90vw;max-width:360px;background:#172b30;border:3px solid #63f58b;border-radius:8px}
+button{padding:14px;margin:5px;border:0;border-radius:10px;background:#63f58b;color:#101820;font-size:20px;font-weight:bold}
+.controls{display:grid;grid-template-columns:70px 70px 70px;justify-content:center}
+</style>
+</head>
+<body>
+<h1>🐍 PAK GAME ZONE</h1>
+<h3>Score: <span id="score">0</span></h3>
+<canvas id="game" width="360" height="360"></canvas>
+<p id="msg">Start dabao aur khelo!</p>
+<button onclick="start()">▶ Start / Restart</button>
+<div class="controls">
+<span></span><button onclick="turn(0,-1)">⬆️</button><span></span>
+<button onclick="turn(-1,0)">⬅️</button>
+<button onclick="turn(0,1)">⬇️</button>
+<button onclick="turn(1,0)">➡️</button>
+</div>
+<script>
+const c=document.getElementById("game"),ctx=c.getContext("2d");
+const n=20,s=18;
+let snake,food,dir,next,score,timer,alive=false;
+function placeFood(){
+ do{food={x:Math.floor(Math.random()*n),y:Math.floor(Math.random()*n)}}
+ while(snake.some(p=>p.x===food.x&&p.y===food.y));
+}
+function start(){
+ clearInterval(timer);
+ snake=[{x:10,y:10},{x:9,y:10},{x:8,y:10}];
+ dir={x:1,y:0};next={...dir};score=0;alive=true;
+ document.getElementById("score").textContent=0;
+ document.getElementById("msg").textContent="Khelo!";
+ placeFood();draw();timer=setInterval(step,125);
+}
+function turn(x,y){
+ if(x===-dir.x&&y===-dir.y)return;
+ next={x,y};
+}
+document.addEventListener("keydown",e=>{
+ const k={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]};
+ if(k[e.key]){e.preventDefault();turn(...k[e.key]);}
+});
+function step(){
+ if(!alive)return;dir=next;
+ const h={x:snake[0].x+dir.x,y:snake[0].y+dir.y};
+ const eat=h.x===food.x&&h.y===food.y;
+ const body=eat?snake:snake.slice(0,-1);
+ if(h.x<0||h.y<0||h.x>=n||h.y>=n||body.some(p=>p.x===h.x&&p.y===h.y)){
+ alive=false;clearInterval(timer);document.getElementById("msg").textContent="Game Over! Restart dabao.";return;
+ }
+ snake.unshift(h);
+ if(eat){score++;document.getElementById("score").textContent=score;placeFood();}
+ else snake.pop();
+ draw();
+}
+function draw(){
+ ctx.fillStyle="#172b30";ctx.fillRect(0,0,360,360);
+ ctx.fillStyle="#ff5b66";ctx.beginPath();ctx.arc(food.x*s+9,food.y*s+9,7,0,Math.PI*2);ctx.fill();
+ snake.forEach((p,i)=>{ctx.fillStyle=i===0?"#a5ffb5":"#35cf70";ctx.fillRect(p.x*s+1,p.y*s+1,s-2,s-2);});
+}
+draw();
+</script>
+</body>
+  </html>
+  
